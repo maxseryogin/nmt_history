@@ -50,7 +50,14 @@ function preparePortrait() {
   const s=portraitSession,p=s.list[s.index];
   if(!p)return;
   s.options=portraitOptions(p); s.choice=null;
-  s.imageChoice=Boolean(p.fact) && Math.random()<0.5;
+  const prompts=[];
+  if(p.fact)prompts.push({text:`Хто ${p.fact}?`,description:p.fact});
+  if(p.id==='p4-1'){
+    prompts.push({text:'Який гетьман уклав Зборівський договір 1649 року?',description:'уклав Зборівський договір разом із польським королем Яном II Казимиром',sourceId:268,sourceName:'угоди, стор. 2'});
+    prompts.push({text:'Кому в навчальній добірці приписано слова «Я з польським королем перед тим бився, щоб вернути свободу собі й козакам»?',description:'ці слова приписано Богдану Хмельницькому в навчальній добірці',sourceId:10,sourceName:'цитати, стор. 10'});
+  }
+  s.imageChoice=prompts.length>0 && Math.random()<0.5;
+  s.prompt=s.imageChoice?prompts[Math.floor(Math.random()*prompts.length)]:null;
 }
 function portraitQuizPage() {
   const s=portraitSession;
@@ -61,8 +68,8 @@ function portraitQuizPage() {
     return `<button class="option ${klass} ${s.imageChoice?'portrait-option':''}" data-portrait-answer="${i}" ${answered?'disabled':''}>${s.imageChoice?`<img src="${esc(o.image)}" alt="Варіант ${i+1}">${answered?`<span>${esc(o.name)}</span>`:''}`:esc(o.name)}</button>`;
   }).join('');
   return `<div class="quiz"><div class="quiz-top"><button class="back" data-go="${s.topic?'portraitTopic':'portraits'}">← Вийти</button><span class="pill">${s.index+1} / ${s.list.length}</span></div><div class="progress"><span style="width:${s.index/s.list.length*100}%"></span></div>
-  <div class="eyebrow" style="margin-top:25px">Портрети · Тема ${p.topic}</div><h1>${s.imageChoice?`Хто ${esc(p.fact)}?`:'Кого зображено на портреті?'}</h1>${s.imageChoice?'':`<img class="quiz-image" src="${esc(p.image)}" alt="Портрет історичного діяча">`}
-  <div class="${s.imageChoice?'portrait-options':'options'}">${options}</div>${answered?`<div class="feedback ${good?'':'wrong'}"><strong>${good?'Правильно':'Варто повторити'}: ${esc(p.name)}</strong>Підпис у наданій добірці портретів.${p.fact?` ${esc(p.name)} ${esc(p.fact)}.`:''}<div><button class="link-btn" data-page="${p.page+276}" data-page-topic="${p.topic}">Джерело: портрети, стор. ${p.page} ↗</button></div><button class="btn btn-primary" data-portrait-next>Далі →</button></div>`:''}</div>`;
+  <div class="eyebrow" style="margin-top:25px">Портрети · Тема ${p.topic}</div><h1>${s.imageChoice?esc(s.prompt.text):'Кого зображено на портреті?'}</h1>${s.imageChoice?'':`<img class="quiz-image" src="${esc(p.image)}" alt="Портрет історичного діяча">`}
+  <div class="${s.imageChoice?'portrait-options':'options'}">${options}</div>${answered?`<div class="feedback ${good?'':'wrong'}"><strong>${good?'Правильно':'Варто повторити'}: ${esc(p.name)}</strong>Підпис у наданій добірці портретів.${s.prompt?.description?` ${esc(s.prompt.description)}.`:''}<div><button class="link-btn" data-page="${p.page+276}" data-page-topic="${p.topic}">Джерело: портрети, стор. ${p.page} ↗</button>${s.prompt?.sourceId?` · <button class="link-btn" data-page="${s.prompt.sourceId}" data-page-topic="${p.topic}">${esc(s.prompt.sourceName)} ↗</button>`:''}</div><button class="btn btn-primary" data-portrait-next>Далі →</button></div>`:''}</div>`;
 }
 root.addEventListener('click', e=>{
   const b=e.target.closest('button'); if(!b)return;

@@ -1,6 +1,6 @@
 const fs = require('fs'), vm = require('vm'), assert = require('assert'), path = require('path');
 const dir = path.resolve(__dirname, '..');
-const context = { window: {}, console, Math, state: { portraits: {} }, root: { addEventListener() {} } };
+const context = { window: {}, console, Math, state: { portraits: {} }, root: { addEventListener() {} }, shuffle: x=>[...x], esc: x=>String(x) };
 context.window = context;
 vm.createContext(context);
 for (const file of ['questions.js','extra_questions.js','portraits.js','portrait_practice.js'])
@@ -20,4 +20,16 @@ for(let i=0;i<100;i++){
 const p=portraits[0];
 assert(context.portraitCandidates(p.topic).some(x=>x.id===p.id));
 context.state.portraits[p.id]={stage:5};assert(context.portraitWeight(p)<context.portraitWeight(portraits[1]));
+const special=portraits.find(person=>person.id==='p4-1'); context.special=special;
+vm.runInContext('portraitSession={list:[special],index:0,choice:null,options:[]}',context);
+const seen=new Set();
+for(let i=0;i<500;i++){
+  vm.runInContext('preparePortrait()',context);
+  const current=vm.runInContext('portraitSession',context);
+  if(!current.imageChoice)continue;
+  if(current.prompt.sourceId)seen.add(current.prompt.sourceId);
+  const html=vm.runInContext('portraitQuizPage()',context);
+  assert(!html.includes(special.name), 'image choices must hide names before answering');
+}
+assert(seen.has(268) && seen.has(10),'agreement and quotation prompts must be selectable');
 console.log(`OK: ${questions.length} questions across 32 topics, ${portraits.length} portraits, unique samples and adaptive weights`);
