@@ -3,14 +3,14 @@ const dir = path.resolve(__dirname, '..');
 const context = { window: {}, console, Math, state: { portraits: {} }, root: { addEventListener() {} }, shuffle: x=>[...x], esc: x=>String(x) };
 context.window = context;
 vm.createContext(context);
-for (const file of ['questions.js','extra_questions.js','lessons.js','extra_lessons.js','portraits.js','portrait_practice.js'])
+for (const file of ['questions.js','extra_questions.js','more_questions.js','lessons.js','extra_lessons.js','portraits.js','portrait_practice.js'])
   vm.runInContext(fs.readFileSync(path.join(dir,file),'utf8'), context, { filename: file });
 const questions=context.QUESTION_BANK, portraits=context.PORTRAITS;
 assert.equal(portraits.length, 54);
 assert.equal(new Set(portraits.map(p=>p.id)).size,portraits.length);
 for(const p of portraits){assert(fs.existsSync(path.join(dir,p.image)),p.image);assert(p.topics.includes(p.topic));}
 assert.equal(new Set(questions.map(q=>q.id)).size,questions.length);
-for(let topic=1;topic<=32;topic++)assert(questions.some(q=>q.topic===topic),`missing topic ${topic}`);
+for(let topic=1;topic<=32;topic++)assert(questions.filter(q=>q.topic===topic).length>=6,`too few questions in topic ${topic}`);
 for(const q of questions){assert.equal(q.options.length,4,q.id);assert.equal(new Set(q.options).size,4,q.id);assert.equal(q.options.filter(a=>a===q.a).length,1,q.id);assert(q.source && q.why,q.id);}
 const app=fs.readFileSync(path.join(dir,'app.js'),'utf8');
 for (const name of ['topicQuestions','lessonQuestions']) {
@@ -18,6 +18,7 @@ for (const name of ['topicQuestions','lessonQuestions']) {
   assert(line,`missing ${name}`);vm.runInContext(line,context);
 }
 const pages=JSON.parse(fs.readFileSync(path.join(dir,'assets/library.json'),'utf8')).pages;
+for(const q of questions)assert(pages.some(p=>p.short_name===q.source[0]&&p.page_number===q.source[1]),`missing question source ${q.id}`);
 for(let topic=1;topic<=32;topic++){
   const lessons=context.lessonQuestions(topic);
   assert(lessons.length>0,`no lesson steps for topic ${topic}`);

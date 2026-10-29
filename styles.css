@@ -21,3 +21,15 @@ body.reader-open{overflow:hidden}.page-reader{position:fixed;inset:0;z-index:30;
 :root[data-theme='dark'] .card-source a{color:#b7dcb9}
 
 .portrait-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;margin-top:22px}.portrait-card{display:flex;flex-direction:column;gap:10px}.portrait-card img{width:100%;height:180px;object-fit:contain;object-position:center;border-radius:10px}.portrait-card strong{font-size:14px}.portrait-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.portrait-option{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px;text-align:center}.portrait-option img{width:100%;height:180px;object-fit:contain}.portrait-option span{font-weight:700}@media(max-width:760px){.portrait-option img{height:130px}.bottom-nav .nav-btn{gap:3px;font-size:10px;padding-left:3px;padding-right:3px}}
+
+/* Keep the layout fixed when content height changes; the navigation itself stays mounted. */
+html{overflow-y:scroll;scrollbar-gutter:stable}
+.nav{position:relative}.nav-indicator{position:absolute;left:0;top:0;border-radius:13px;background:#e4ede2;pointer-events:none;opacity:0;z-index:0}.nav-indicator.ready{transition:transform .32s cubic-bezier(.2,.75,.25,1),width .22s ease,height .22s ease,opacity .16s ease}
+.nav .nav-btn,.bottom-nav .nav-btn{position:relative;z-index:1;transition:color .2s ease,background-color .2s ease,transform .16s ease}
+.nav .nav-btn.active,:root[data-theme="dark"] .nav .nav-btn.active{background:transparent}
+:root[data-theme="dark"] .nav-indicator{background:#30483a}
+.btn,.topic-item,.week-card,.option,.page-tile,.theme-toggle{transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease,transform .18s ease}
+@media(hover:hover){.btn:hover,.topic-item:hover,.week-card:hover,.page-tile:hover{transform:translateY(-2px)}.btn:hover,.topic-item:hover,.page-tile:hover{box-shadow:0 8px 22px rgba(25,57,42,.1)}}
+.btn:active,.option:active,.topic-item:active,.nav-btn:active{transform:scale(.985)}
+@media(max-width:760px){.bottom-nav .nav-indicator{border-radius:10px}.bottom-nav .nav-btn.active{background:transparent}}
+@media(prefers-reduced-motion:reduce){.nav-indicator.ready,.btn,.topic-item,.week-card,.option,.page-tile,.theme-toggle,.nav-btn{transition:none!important}.btn:hover,.topic-item:hover,.week-card:hover,.page-tile:hover,.btn:active,.option:active,.topic-item:active,.nav-btn:active{transform:none!important}}
